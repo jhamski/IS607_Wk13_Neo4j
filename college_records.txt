@@ -1,0 +1,33 @@
+James Hamski | IS 607 Homework Wk 13 | CUNY MSDA
+
+#########
+LOAD DATA
+#########
+
+
+
+###################
+BUILD RELATIONSHIPS
+###################
+
+
+
+
+#######################
+GRAPH OR RELATIONAL DB?
+#######################
+
+
+##############
+ROOMMATE QUERY
+##############
+
+
+############
+UPDATE GRADE
+############
+
+
+#################
+BONUS DELIVERABLE
+#################
