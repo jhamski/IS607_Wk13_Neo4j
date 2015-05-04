@@ -4,11 +4,30 @@ James Hamski | IS 607 Homework Wk 13 | CUNY MSDA
 LOAD DATA
 #########
 
+#Pre-processing
+I split the file data-students-and-housing.csv file into two separate files, one list of students, the other their dormitories. Student ID, surname, and given name were included in both.
+
+#students
+load csv with headers from "file:////usr/local/Cellar/neo4j/2.2.1/college_records/data-students.csv" as students
+create (s:students {id: toInt(students.id), gender: students.Gender, givenName: students.GivenName, surname: students.Surname, address: students.StreetAddress, city: students.City, state: students.State, zip: students.ZipCode, tel: students.TelephoneNumber})
 
 
-###################
-BUILD RELATIONSHIPS
-###################
+
+#housing
+load csv with headers from "file:////usr/local/Cellar/neo4j/2.2.1/college_records/data-housing.csv" as housing
+create (h:housing {id: toInt(housing.id), givenName: housing.GivenName, surname: housing.Surname, dorm: housing.Dormitory, room: housing.room})
+
+load csv with headers from "file:////usr/local/Cellar/neo4j/2.2.1/college_records/data-housing.csv" as housing match (housing:housing {id: toInt(housing.id)}), (students:students {id: students.id}) create (housing)-[r:LivesIn{dorm: housing.dorm}]->(students)
+
+
+#courses
+load csv with headers from "file:////usr/local/Cellar/neo4j/2.2.1/college_records/data-courses.csv" as courses
+create (: courses {id: courses.id, givenName: courses.GivenName, surname: courses.Surname, dept: courses.CourseDept, courseNumber: courses.CourseNumber, courseName: courses.CourseName, grade: courses.grade, section: courses.Section, instructor: courses.Instructor})
+
+
+
+#student to housing relationship
+load csv with headers from "file:////usr/local/Cellar/neo4j/2.2.1/college_records/data-students.csv" as students match (a: student {number: student.id}),(b: housing {label: housing.id}) create (a) -[r:livesIn {livesIn: housing.id}]-> (b)
 
 
 
@@ -16,6 +35,32 @@ BUILD RELATIONSHIPS
 #######################
 GRAPH OR RELATIONAL DB?
 #######################
+
+In this exercise the problem of storing student information on grades, enrollment, and housing is modeled using a graph database.
+However, after attempting to implement it in Neo4j, I believe a relational database would have worked as good or better.
+
+First off, an official record for a university is going to have standardized reporting. This means that creating a
+schema is practical. The standard data fields means fewer NULL values and if there are NULL values it is valuable information,  as
+the field should probably be entered. Referential integrity in the database is an advantage in this situation as well.
+
+The student ID value is a perfect foreign key for relating student information across tables.
+
+The graph database structure involves creating a database model that describes relationships between individual students and their classes and dorms.
+This is interesting and allows for analysis looking at things like what students share classes. However, the relationships and network described by the
+graph database implies a structure that doesn't
+
+For instance, if we want to estimate when a student will graduate, we need to know what classes they have took and are
+currently taking. In SQL this would be a single query:
+
+SELECT CourseCredits
+FROM Courses
+WHERE student.id = 00000
+
+Whereas in Neo4j we need to write two queries, one finding the enrolled in relationship and another finding the
+course completed relationship:
+
+MATCH (s:student)-[enrolledIn]-(course) WHERE student.id - 00000 RETURN CourseCredits
+MATCH (s:student)-[completed]-(course) WHERE student.id - 00000 RETURN CourseCredits
 
 
 ##############
